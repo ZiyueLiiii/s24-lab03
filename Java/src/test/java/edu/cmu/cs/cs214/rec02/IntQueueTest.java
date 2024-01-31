@@ -125,32 +125,46 @@ public class IntQueueTest {
     }
 
     @Test
-    public void testEnsureCapacityWithWrappedElements() {
-        int initialSize = 10;
-    
-        // Fill the queue to its initial capacity and dequeue some elements to move the head forward
+    public void testEnsureCapacityWithoutResize() {
+        int initialSize = 10; // Assuming INITIAL_SIZE is 10
+
+        // Fill up the queue to just below its capacity
+        for (int i = 0; i < initialSize - 1; i++) {
+            assertTrue(mQueue.enqueue(i));
+        }
+
+        // Ensure the queue has not resized
+        assertEquals(initialSize - 1, mQueue.size());
+    }
+
+    @Test
+    public void testEnsureCapacityAtExactCapacity() {
+        int initialSize = 10; // Assuming INITIAL_SIZE is 10
+
+        // Fill up the queue to its exact capacity
         for (int i = 0; i < initialSize; i++) {
-            mQueue.enqueue(i);
+            assertTrue(mQueue.enqueue(i));
         }
-        for (int i = 0; i < initialSize / 2; i++) {
-            mQueue.dequeue();
+
+        // Ensure the queue is at its capacity
+        assertEquals(initialSize, mQueue.size());
+    }
+
+    @Test
+    public void testEnsureCapacityWithResize() {
+        int initialSize = 10; // Assuming INITIAL_SIZE is 10
+
+        // Fill the queue and exceed its capacity to trigger resizing
+        for (int i = 0; i < initialSize + 1; i++) {
+            assertTrue(mQueue.enqueue(i));
         }
-    
-        // Continue enqueueing to wrap elements around the array
-        for (int i = initialSize; i < initialSize + initialSize / 2; i++) {
-            mQueue.enqueue(i);
-        }
-    
-        // Enqueue additional items to trigger resizing
-        for (int i = initialSize + initialSize / 2; i < initialSize * 2; i++) {
-            mQueue.enqueue(i);
-        }
-    
-        // Check that the queue has been resized and contains the correct elements
-        for (int i = initialSize / 2; i < initialSize * 2; i++) {
+
+        // Check the queue has been resized and contains all elements
+        assertEquals(initialSize + 1, mQueue.size());
+        for (int i = 0; i < initialSize + 1; i++) {
             assertEquals(Integer.valueOf(i), mQueue.dequeue());
         }
-    
+
         assertTrue(mQueue.isEmpty());
     }
 
